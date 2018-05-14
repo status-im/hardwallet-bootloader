@@ -7,7 +7,7 @@
 #define FW_MAGIC 0x46574853
 
 // The constants below define the memory layout documented in the README.md file
-#define BOOTLOADER_SIZE 0x1000
+#define BOOTLOADER_SIZE 0x2000
 #define FIRMWARE_SIZE ((FLASH_BANK_SIZE - BOOTLOADER_SIZE) / 2)
 #define FIRMWARE_HEADER_SIZE 0x200
 #define FIRMWARE_FIRST_PAGE (BOOTLOADER_SIZE / FLASH_PAGE_SIZE)

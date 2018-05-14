@@ -1,6 +1,9 @@
 #include "main.h"
 #include "flash.h"
 #include "sha256.h"
+#include "uECC.h"
+
+uint8_t fw_public_key[] = { 0xfe, 0xcb, 0x28, 0xb9, 0x50, 0xdd, 0x8b, 0x2f, 0xc7, 0x34, 0xd3, 0x60, 0x5b, 0x1a, 0xc6, 0xed, 0x02, 0x50, 0xf2, 0x4a, 0xc4, 0x75, 0xd1, 0x28, 0x7f, 0x7c, 0xb5, 0xce, 0x61, 0xd6, 0x95, 0xb9, 0xb5, 0x27, 0x0b, 0x52, 0x77, 0x42, 0x4b, 0xf3, 0xb4, 0x3c, 0xef, 0xcb, 0x56, 0xd1, 0x98, 0x22, 0x11, 0xc2, 0xe5, 0xd3, 0xf0, 0x22, 0x87, 0xb9, 0xe8, 0x20, 0xdc, 0xee, 0x9f, 0xc2, 0xad, 0x22, };
 
 int main(void) {
   if (!check_firmware(UPGRADE_FW_START)) {
@@ -17,14 +20,21 @@ int check_firmware(uintptr_t addr) {
     return 1;
   }
 
-  cf_sha256_context ctx;
-  cf_sha256_init(&ctx);
-  cf_sha256_update(&ctx, UINT8_PTR(addr), UINT32_PTR(addr)[1]);
-  uint8_t hash[CF_SHA256_HASHSZ];
-  cf_sha256_digest(&ctx, hash);
-  //TODO: verify signature!!!
+  uint32_t fw_size = UINT32_PTR(addr)[1];
 
-  return 0;
+  if (fw_size > FIRMWARE_SIZE) {
+    return 1;
+  }
+
+  uint8_t hash[CF_SHA256_HASHSZ];
+  cf_sha256_context ctx;
+  uECC_Curve ec_curve = uECC_secp256k1();
+
+  cf_sha256_init(&ctx);
+  cf_sha256_update(&ctx, UINT8_PTR(addr + FIRMWARE_HEADER_SIZE), fw_size);
+  cf_sha256_digest(&ctx, hash);
+
+  return uECC_verify(fw_public_key, hash, CF_SHA256_HASHSZ, UINT8_PTR(addr + 8), ec_curve) != 1;
 }
 
 
