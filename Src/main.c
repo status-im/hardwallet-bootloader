@@ -1,5 +1,6 @@
 #include "main.h"
 #include "flash.h"
+#include "sha256.h"
 
 int main(void) {
   if (!check_firmware(UPGRADE_FW_START)) {
@@ -12,10 +13,15 @@ int main(void) {
 }
 
 int check_firmware(uintptr_t addr) {
-  if(*UINT32_PTR(addr) != FW_MAGIC) {
+  if(UINT32_PTR(addr)[0] != FW_MAGIC) {
     return 1;
   }
 
+  cf_sha256_context ctx;
+  cf_sha256_init(&ctx);
+  cf_sha256_update(&ctx, UINT8_PTR(addr), UINT32_PTR(addr)[1]);
+  uint8_t hash[CF_SHA256_HASHSZ];
+  cf_sha256_digest(&ctx, hash);
   //TODO: verify signature!!!
 
   return 0;
