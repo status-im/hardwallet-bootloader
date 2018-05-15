@@ -22,6 +22,12 @@
 #define RECOVERY_FW_START (FIRMWARE_START + FIRMWARE_SIZE)
 #define RECOVERY_FW_FIRST_PAGE (FIRMWARE_FIRST_PAGE + FIRMWARE_PAGE_COUNT)
 
+#define SIGNATURE_HEADER_OFFSET 8
+#define SIGNATURE_LENGTH 64
+#define KEY_LENGTH SIGNATURE_LENGTH
+#define SIGNATURE_COUNT 1
+
+
 
 /**
  * Checks the firmware a the given address. It checks the magic number, validates the size and checks the signature(s).

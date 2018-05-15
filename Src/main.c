@@ -34,7 +34,13 @@ int check_firmware(uintptr_t addr) {
   cf_sha256_update(&ctx, UINT8_PTR(addr + FIRMWARE_HEADER_SIZE), fw_size);
   cf_sha256_digest(&ctx, hash);
 
-  return uECC_verify(fw_public_key, hash, CF_SHA256_HASHSZ, UINT8_PTR(addr + 8), ec_curve) != 1;
+  for(int i = 0; i < SIGNATURE_COUNT; i++) {
+    if (uECC_verify((fw_public_key + (KEY_LENGTH * i)), hash, CF_SHA256_HASHSZ, UINT8_PTR(addr + SIGNATURE_HEADER_OFFSET + (SIGNATURE_LENGTH * i)), ec_curve) != 1) {
+      return 1;
+    }
+  }
+
+  return 0;
 }
 
 
