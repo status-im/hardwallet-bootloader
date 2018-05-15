@@ -1,1 +1,5 @@
 /Debug/
+/scripts/
+!/scripts/*.py
+!/scripts/*.sh
+*.cfg
