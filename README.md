@@ -31,7 +31,7 @@ This document describes the bootloader, the memory layout and upgrade mechanism 
     |            USER DATA              |
     |                                   |
     |                                   |
-    |-----------------------------------|
+    |===================================|
     
 The STM32 chips divide flash memory into two banks. Reading one bank while writing on the other is possible, so the user data and the firmware will live in two different banks. The page size is 2k, so all boundaries will be aligned to a multiple of that size. The area allocated for the firmware is (BANK_SIZE - BOOTLOADER_SIZE) / 2, since two instances of the firmware will need to fit in the first bank. The user data area size will be FW_SIZE + BOOTLOADER_SIZE, as to allocate the entire memory. Absolute sizes cannot be provided yet. When we have a final bootloader (estimated to be in the 4-8k range) and a final firmware we will decide how much flash memory on chip we need and with this finally calculate the absolute size. The chip must be chosen by keeping in mind that the firmware might grow by up to 50% in size (although that is unlikely) with future upgrades.
 
@@ -54,8 +54,7 @@ The linker definition file of the firmware must set the flash start address at f
 
 ## Booting
 
-The bootloader checks the integrity of the firmware by verifying its signature. It substitutes its Interrupt Vector pointer with the one defined by the firmware by setting the corresponding registry. *(It clears the entire content of
-the SRAM1 for security reasons, is this needed? we only load trusted firmware)*. It restores the stack pointer and jumps to the reset handler of the firmware.
+The bootloader checks the integrity of the firmware by verifying its signatures. It substitutes its Interrupt Vector pointer with the one defined by the firmware by setting the corresponding registry. It clears the entire content of the SRAM1, then restores the stack pointer and jumps to the reset handler of the firmware.
 
 ## Upgrade procedure
 

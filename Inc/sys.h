@@ -12,6 +12,9 @@
 #define FLASH_START_BANK1 FLASH_BASE
 #define FLASH_START_BANK2 (FLASH_BASE + FLASH_BANK_SIZE)
 
+#define SRAM_START SRAM1_BASE
+#define SRAM_END (SRAM_START + SRAM1_SIZE_MAX)
+
 // Utility macros
 #define UINT32_PTR(n) ((uint32_t *) n)
 #define UINT8_PTR(n) ((uint8_t *) n)
@@ -29,11 +32,6 @@
        __x > __y ? __x : __y; })
 #endif
 
-static inline void memzero(volatile void *v, uint32_t len) {
-  if (len) {
-    memset((void *) v, 0, len);
-    (void) *((volatile uint8_t *) v);
-  }
-}
+void memzero(uintptr_t start, uintptr_t end);
 
 #endif /* SYS_H_ */

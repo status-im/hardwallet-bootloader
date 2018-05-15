@@ -38,7 +38,7 @@ int check_firmware(uintptr_t addr) {
 }
 
 
-void _load_firmware(uintptr_t newfw, uint8_t newfw_bank, uint8_t newfw_page) {
+void _load_firmware(uintptr_t newfw, uint8_t newfw_bank, uint8_t newfw_page, uint8_t remove_newfw) {
   flash_unlock();
 
   do {
@@ -46,21 +46,26 @@ void _load_firmware(uintptr_t newfw, uint8_t newfw_bank, uint8_t newfw_page) {
     flash_copy(UINT32_PTR(newfw),  UINT32_PTR(FIRMWARE_START), UINT32_PTR(newfw)[1]);
   } while(check_firmware(FIRMWARE_START) != 0);
 
-  flash_erase(newfw_bank, newfw_page, FIRMWARE_PAGE_COUNT);
+  if (remove_newfw) {
+    flash_erase(newfw_bank, newfw_page, FIRMWARE_PAGE_COUNT);
+  }
+
   flash_lock();
 }
 
 void upgrade_firmware() {
-  _load_firmware(UPGRADE_FW_START, FLASH_BANK2, UPGRADE_FW_FIRST_PAGE);
+  _load_firmware(UPGRADE_FW_START, FLASH_BANK2, UPGRADE_FW_FIRST_PAGE, 1);
+}
+
+void factory_reset(void) {
+  _load_firmware(RECOVERY_FW_START, FLASH_BANK1, RECOVERY_FW_FIRST_PAGE, 0);
 }
 
 void run_firmware(void) {
+  memzero(SRAM_START, SRAM_END);
   uint32_t* fw_entry = UINT32_PTR(FIRMWARE_CODE_START);
   SCB->VTOR = (uint32_t) fw_entry;
   __set_MSP(fw_entry[0]);
   ((void (*)(void))fw_entry[1])();
 }
 
-void factory_reset(void) {
-  _load_firmware(RECOVERY_FW_START, FLASH_BANK1, RECOVERY_FW_FIRST_PAGE);
-}
