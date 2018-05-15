@@ -33,7 +33,7 @@ This document describes the bootloader, the memory layout and upgrade mechanism 
     |                                   |
     |===================================|
     
-The STM32 chips divide flash memory into two banks. Reading one bank while writing on the other is possible, so the user data and the firmware will live in two different banks. The page size is 2k, so all boundaries will be aligned to a multiple of that size. The area allocated for the firmware is (BANK_SIZE - BOOTLOADER_SIZE) / 2, since two instances of the firmware will need to fit in the first bank. The user data area size will be FW_SIZE + BOOTLOADER_SIZE, as to allocate the entire memory. Absolute sizes cannot be provided yet. When we have a final bootloader (estimated to be in the 4-8k range) and a final firmware we will decide how much flash memory on chip we need and with this finally calculate the absolute size. The chip must be chosen by keeping in mind that the firmware might grow by up to 50% in size (although that is unlikely) with future upgrades.
+The STM32 chips divide flash memory into two banks. Reading one bank while writing on the other is possible, so the user data and the firmware will live in two different banks. The page size is 2k, so all boundaries will be aligned to a multiple of that size. The area allocated for the firmware is (BANK_SIZE - BOOTLOADER_SIZE) / 2, since two instances of the firmware will need to fit in the first bank. The user data area size will be FW_SIZE + BOOTLOADER_SIZE, as to allocate the entire memory. Absolute sizes cannot be provided yet. When we have a final bootloader (estimated to be in the 4-8k range) and a final firmware we will decide how much flash memory on chip we need and with this finally calculate the absolute size. The chip must be chosen by keeping in mind that the firmware might grow by up to 50% in size (this leaves a lot of headroom) with future upgrades. The current bootloader fits (comfortably) in 8k, but since the final chip will have hardware accelerated SHA-256 and possibly ECDSA, the final size might actually decrease.
 
 The bootloader is placed at the very beginning of the flash memory, in a write protected area. The bootloader will not be upgradable, so it must be kept as small and simple as possible and be throughly tested and reviewed. The tasks it will perform are:
 
@@ -41,14 +41,13 @@ The bootloader is placed at the very beginning of the flash memory, in a write p
 2. Check if the FIRMWARE area has a valid firmware. If so, start it, else go to 3
 3. Restore the FACTORY FIRMWARE (which is also written in a write protected area)
 
-This design makes it impossible to brick the device by a failed firmware upgrade, because it can always start over
-from the initial one. *(should it be possible to eventually upgrade the recovery firmware?)*
+This design makes it impossible to brick the device by a failed firmware upgrade, because it can always start over from the initial one. *(should it be possible to eventually upgrade the recovery firmware?)*
 
 The bootloader is not responsible for transferring the new firmware to the UPGRADED FIRMWARE area. The (upgradable) firmware is responsible for that. The reason for this is again that we want to keep the bootloader as small as possible and the device won't have any interface except for BLE (which is not a really simple one). The chip will be set in protection level 2 which makes it impossible to interact with the flash memory externally (using ST-LINK or similar) and also makes it impossible to disable write protection of the bootloader and other write protected areas. Activating protection level 2 on STM32 chips is not reversible.
 
 ## Firmware
 
-Each firmware section has a header preceding the actual executable. The header is composed of a magic number, the byte size of the code section and an ECDSA-256 signature, which must be verified by the bootloader on each boot and before performing an upgrade. The size of the header will be fixed. *(Since the current chip requires the Interrupt Vector to be placed at an address which is a multiple of 512, we will have to make the header that long. Any idea about useful metadata to place there? Maybe multiple signatures?)*. The size of the code section is variable, but must fit within the limits of the allocated memory.
+Each firmware section has a header preceding the actual executable. The header is composed of a magic number, the byte size of the code section and an ECDSA-256 signature, which must be verified by the bootloader on each boot and before performing an upgrade. The size of the header will be fixed. *(Since the current chip requires the Interrupt Vector to be placed at an address which is a multiple of 512, we will have to make the header that long. Any idea about useful metadata to place there, besides signatures?)*. The size of the code section is variable, but must fit within the limits of the allocated memory.
 
 The linker definition file of the firmware must set the flash start address at fixed location, accounting for the space occupied by the bootloader and its own header. The exact address will be documented here as soon as it is defined.
 
@@ -64,8 +63,9 @@ After determining that there is a firmware to be flashed, the bootloader check t
 
 It works exactly the same as the upgrade procedure, but the firmware is not deleted at the end.
 
-## Signature key(s)
+## Signature keys
 
-The bootloader will have an EC public key which will be used to verify the firmware on boot and upgrade. The private part of this key must be kept secret and will be used to sign the released firmware. *(Since the key will not be replaceable, we might increase security by mandating that the firmware is signed with 2 or more keys held by different people/entities. In this way, the leak of a single key is not enough to create a valid firmware.)*
+The bootloader will have multiple *(how many?)* EC public keys which will be used to verify the firmware on boot and upgrade. The private part of each key must be kept secret and will be used to sign the released firmware. Each key will have a different owner, responsible for securely storing the private key and signing each firmware release. Using multiple keys reduces the impact of a single leaked key, since the bootloader
+will only accept firmware signed using all keys. During development, the keys will be stored in the bootloader itself. However we might take advantage of the OTP memory when we are closer to finalize, especially if we need to shave off some bytes off the bootloader. The OTP memory is not erasable and thus can be programmed only once.
 
 
