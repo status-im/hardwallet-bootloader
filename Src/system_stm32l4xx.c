@@ -95,42 +95,15 @@
 
 #include "stm32l4xx.h"
 
-#if !defined  (HSE_VALUE)
-  #define HSE_VALUE    8000000U  /*!< Value of the External oscillator in Hz */
-#endif /* HSE_VALUE */
-
-#if !defined  (MSI_VALUE)
-  #define MSI_VALUE    4000000U  /*!< Value of the Internal oscillator in Hz*/
-#endif /* MSI_VALUE */
-
-#if !defined  (HSI_VALUE)
-  #define HSI_VALUE    16000000U /*!< Value of the Internal oscillator in Hz*/
-#endif /* HSI_VALUE */
-
-
-  uint32_t SystemCoreClock = 4000000U;
-
-  const uint8_t  AHBPrescTable[16] = {0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 1U, 2U, 3U, 4U, 6U, 7U, 8U, 9U};
-  const uint8_t  APBPrescTable[8] =  {0U, 0U, 0U, 0U, 1U, 2U, 3U, 4U};
-  const uint32_t MSIRangeTable[12] = {100000U,   200000U,   400000U,   800000U,  1000000U,  2000000U, \
-                                      4000000U, 8000000U, 16000000U, 24000000U, 32000000U, 48000000U};
-
 void SystemInit(void) {
-  /* Reset the RCC clock configuration to the default reset state ------------*/
-  /* Set MSION bit */
-  RCC->CR |= RCC_CR_MSION;
+  /* Run at 16Mhz */
+  RCC->CR = RCC_CR_MSIRGSEL | RCC_CR_MSIRANGE_8 | RCC_CR_MSION;
 
-  /* Reset CFGR register */
+  /* Reset CFGR */
   RCC->CFGR = 0x00000000U;
-
-  /* Reset HSEON, CSSON , HSION, and PLLON bits */
-  RCC->CR &= 0xEAF6FFFFU;
 
   /* Reset PLLCFGR register */
   RCC->PLLCFGR = 0x00001000U;
-
-  /* Reset HSEBYP bit */
-  RCC->CR &= 0xFFFBFFFFU;
 
   /* Disable all interrupts */
   RCC->CIER = 0x00000000U;

@@ -47,6 +47,8 @@ int check_firmware(uintptr_t addr) {
 void _load_firmware(uintptr_t newfw, uint8_t newfw_bank, uint8_t newfw_page, uint8_t remove_newfw) {
   flash_unlock();
 
+  SET_BIT(RCC->CR, RCC_CR_HSION);
+
   do {
     flash_erase(FLASH_BANK1, FIRMWARE_FIRST_PAGE, FIRMWARE_PAGE_COUNT);
     flash_copy(UINT32_PTR(newfw),  UINT32_PTR(FIRMWARE_START), UINT32_PTR(newfw)[1]);
@@ -55,6 +57,8 @@ void _load_firmware(uintptr_t newfw, uint8_t newfw_bank, uint8_t newfw_page, uin
   if (remove_newfw) {
     flash_erase(newfw_bank, newfw_page, FIRMWARE_PAGE_COUNT);
   }
+
+  CLEAR_BIT(RCC->CR, RCC_CR_HSION);
 
   flash_lock();
 }
