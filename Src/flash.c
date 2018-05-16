@@ -18,6 +18,15 @@ int flash_unlock() {
   return READ_BIT(FLASH->CR, FLASH_CR_LOCK);
 }
 
+int flash_optunlock() {
+  flash_unlock();
+
+  FLASH->OPTKEYR = FLASH_OPTKEYR1;
+  FLASH->OPTKEYR = FLASH_OPTKEYR2;
+
+  return READ_BIT(FLASH->CR, FLASH_CR_OPTLOCK);
+}
+
 int _flash_erase_page(uint8_t bank, uint8_t pg) {
   if(bank == FLASH_BANK1) {
     CLEAR_BIT(FLASH->CR, FLASH_CR_BKER);
@@ -76,4 +85,10 @@ int flash_copy(uint32_t *src, __IO uint32_t *dst, uint32_t size) {
 int flash_lock() {
   SET_BIT(FLASH->CR, FLASH_CR_LOCK);
   return 0;
+}
+
+void flash_optprogram() {
+  SET_BIT(FLASH->CR, FLASH_CR_OPTSTRT);
+  _flash_wait();
+  SET_BIT(FLASH->CR, FLASH_CR_OBL_LAUNCH);
 }

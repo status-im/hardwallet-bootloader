@@ -94,9 +94,6 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.671366655.1713612907" name="startup_stm32l476xx.s" rcbsApplicability="disable" resourcePath="startup/startup_stm32l476xx.s" toolsToInvoke="fr.ac6.managedbuild.tool.gnu.cross.assembler.1808416181.796708243">
-						<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.1808416181.796708243" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.1808416181"/>
-					</fileInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="startup"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
@@ -145,6 +142,7 @@
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.2096171234" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__weak=&quot;__attribute__((weak))&quot;"/>
+									<listOptionValue builtIn="false" value="-DBOOTLOADER_RELEASE"/>
 									<listOptionValue builtIn="false" value="__packed=&quot;__attribute__((__packed__))&quot;"/>
 									<listOptionValue builtIn="false" value="STM32L476xx"/>
 								</option>
@@ -232,4 +230,5 @@
 		<configuration configurationName="Release"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

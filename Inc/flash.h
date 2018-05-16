@@ -7,8 +7,18 @@
 #define FLASH_KEYR1 0x45670123
 #define FLASH_KEYR2 0xCDEF89AB
 
+#define FLASH_OPTKEYR1 0x08192A3B
+#define FLASH_OPTKEYR2 0x4C5D6E7F
+
 #define FLASH_BANK1 0
 #define FLASH_BANK2 1
+
+#define RDP2 0xcc
+
+#define FLASH_IS_RDP2() ((FLASH->OPTR & 0xff) == RDP2)
+#define FLASH_SET_RDP2() FLASH->OPTR |= RDP2
+#define FLASH_WP(reg, start, end) reg = (0xFF00FF00 | end << 16 | start)
+
 
 /**
  * Unlocks the flash, allowing writing.
@@ -30,5 +40,16 @@ int flash_copy(uint32_t* src, __IO uint32_t* dst, uint32_t size);
  * Locks the flash again, preventing writing.
  */
 int flash_lock();
+
+/**
+ * Unlock the option bytes
+ */
+int flash_optunlock();
+
+/**
+ * Write and reload the option bytes
+ */
+void flash_optprogram();
+
 
 #endif /* FLASH_H_ */

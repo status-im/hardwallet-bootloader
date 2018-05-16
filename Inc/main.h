@@ -8,9 +8,12 @@
 
 // The constants below define the memory layout documented in the README.md file
 #define BOOTLOADER_SIZE 0x2000
+#define BOOTLOADER_FIRST_PAGE 0
+#define BOOTLOADER_LAST_PAGE ((BOOTLOADER_SIZE / FLASH_PAGE_SIZE) - 1)
+
 #define FIRMWARE_SIZE ((FLASH_BANK_SIZE - BOOTLOADER_SIZE) / 2)
 #define FIRMWARE_HEADER_SIZE 0x200
-#define FIRMWARE_FIRST_PAGE (BOOTLOADER_SIZE / FLASH_PAGE_SIZE)
+#define FIRMWARE_FIRST_PAGE (BOOTLOADER_LAST_PAGE + 1)
 #define FIRMWARE_PAGE_COUNT (FIRMWARE_SIZE / FLASH_PAGE_SIZE)
 
 #define FIRMWARE_START (FLASH_START_BANK1 + BOOTLOADER_SIZE)
@@ -21,6 +24,8 @@
 
 #define RECOVERY_FW_START (FIRMWARE_START + FIRMWARE_SIZE)
 #define RECOVERY_FW_FIRST_PAGE (FIRMWARE_FIRST_PAGE + FIRMWARE_PAGE_COUNT)
+#define RECOVERY_FW_LAST_PAGE (RECOVERY_FW_FIRST_PAGE + FIRMWARE_PAGE_COUNT - 1)
+
 
 #define SIGNATURE_HEADER_OFFSET 8
 #define SIGNATURE_LENGTH 64
@@ -28,6 +33,10 @@
 #define SIGNATURE_COUNT 1
 
 
+/**
+ * Checks if the bootloader and recovery are write protected, if not protect them. Also enables the Read Protection level 2. Since this is irreversible, the code is disabled during development
+ */
+void protect_flash();
 
 /**
  * Checks the firmware a the given address. It checks the magic number, validates the size and checks the signature(s).
