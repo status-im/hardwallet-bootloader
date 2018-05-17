@@ -36,7 +36,11 @@ int main(void) {
   if (!check_firmware(UPGRADE_FW_START)) {
     upgrade_firmware();
   } else if (check_firmware(FIRMWARE_START)) {
-    factory_reset();
+    if(!check_firmware(RECOVERY_FW_START)) {
+      factory_reset();
+    } else {
+      for(;;); // This should never happen, but if the recovery firmware is also corrupted, we enter an endless loop since there is nothing else we can do
+    }
   }
 
   run_firmware();
