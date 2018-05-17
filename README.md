@@ -47,7 +47,7 @@ The bootloader is not responsible for transferring the new firmware to the UPGRA
 
 ## Firmware
 
-Each firmware section has a header preceding the actual executable. The header is composed of a magic number, the byte size of the code section and an ECDSA-256 signature, which must be verified by the bootloader on each boot and before performing an upgrade. The size of the header will be fixed. *(Since the current chip requires the Interrupt Vector to be placed at an address which is a multiple of 512, we will have to make the header that long. Any idea about useful metadata to place there, besides signatures?)*. The size of the code section is variable, but must fit within the limits of the allocated memory.
+Each firmware section has a header preceding the actual executable. The header is composed of a magic number, the byte size of the code section and several ECDSA-256 signatures, which must be verified by the bootloader on each boot and before performing an upgrade. The size of the header will be fixed. *(Since the current chip requires the Interrupt Vector to be placed at an address which is a multiple of 512, we will have to make the header that long. Any idea about useful metadata to place there, besides signatures?)*. The size of the code section is variable, but must fit within the limits of the allocated memory.
 
 The linker definition file of the firmware must set the flash start address at fixed location, accounting for the space occupied by the bootloader and its own header. The exact address will be documented here as soon as it is defined.
 
@@ -57,7 +57,7 @@ The bootloader checks the integrity of the firmware by verifying its signatures.
 
 ## Upgrade procedure
 
-After determining that there is a firmware to be flashed, the bootloader check the validity of its signature. No unsigned firmware will be loaded. Loading begins by erasing the current firmware. The entire FIRMWARE area is erased, regardless of the actual firmware size. Then, the new firmware is copied over from the UPGRADED FIRMWARE area. The integrity of the copied firmware is verified once again by verifying its signature. At this point upgraded firmware is erased from memory completely. This procedure makes it possible to recover from an interrupted upgrade (for example, low battery), since the bootloader will try again on reset.
+After determining that there is a firmware to be flashed, the bootloader check the validity of its signatures. No unsigned firmware will be loaded. Loading begins by erasing the current firmware. The entire FIRMWARE area is erased, regardless of the actual firmware size. Then, the new firmware is copied over from the UPGRADED FIRMWARE area. The integrity of the copied firmware is verified once again by verifying its signatures. At this point upgraded firmware is erased from memory completely. This procedure makes it possible to recover from an interrupted upgrade (for example, low battery), since the bootloader will try again on reset.
 
 ## Recovery procedure
 
@@ -65,7 +65,6 @@ It works exactly the same as the upgrade procedure, but the firmware is not dele
 
 ## Signature keys
 
-The bootloader will have multiple *(how many?)* EC public keys which will be used to verify the firmware on boot and upgrade. The private part of each key must be kept secret and will be used to sign the released firmware. Each key will have a different owner, responsible for securely storing the private key and signing each firmware release. Using multiple keys reduces the impact of a single leaked key, since the bootloader
-will only accept firmware signed using all keys. During development, the keys will be stored in the bootloader itself. However we might take advantage of the OTP memory when we are closer to finalize, especially if we need to shave off some bytes off the bootloader. The OTP memory is not erasable and thus can be programmed only once.
+The bootloader will have multiple *(how many?)* EC-SECP256k1 public keys which will be used to verify the firmware on boot and upgrade. The private part of each key must be kept secret and will be used to sign the released firmware. Each key will have a different owner, responsible for securely storing the private key and signing each firmware release. Using multiple keys reduces the impact of a single leaked key, since the bootloader will only accept firmware signed using all keys. During development, the keys will be stored in the bootloader itself. However we might take advantage of the OTP memory when we are closer to finalize, especially if we need to shave off some bytes off the bootloader. The OTP memory is not erasable and thus can be programmed only once.
 
 

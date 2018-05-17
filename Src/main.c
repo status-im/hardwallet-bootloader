@@ -1,9 +1,34 @@
+/**
+ * This file is part of the Status project, https://status.im/
+ *
+ * Copyright (c) 2018 Status Research & Development GmbH
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include "main.h"
 #include "flash.h"
 #include "sha256.h"
 #include "uECC.h"
 
-uint8_t fw_public_key[] = { 0xfe, 0xcb, 0x28, 0xb9, 0x50, 0xdd, 0x8b, 0x2f, 0xc7, 0x34, 0xd3, 0x60, 0x5b, 0x1a, 0xc6, 0xed, 0x02, 0x50, 0xf2, 0x4a, 0xc4, 0x75, 0xd1, 0x28, 0x7f, 0x7c, 0xb5, 0xce, 0x61, 0xd6, 0x95, 0xb9, 0xb5, 0x27, 0x0b, 0x52, 0x77, 0x42, 0x4b, 0xf3, 0xb4, 0x3c, 0xef, 0xcb, 0x56, 0xd1, 0x98, 0x22, 0x11, 0xc2, 0xe5, 0xd3, 0xf0, 0x22, 0x87, 0xb9, 0xe8, 0x20, 0xdc, 0xee, 0x9f, 0xc2, 0xad, 0x22, };
+// The public keys used to verify the firmware signatures. These are the raw X,Y coordinates. Each key is exactly 64 bytes long and there is no separator.
+uint8_t fw_public_keys[] = { 0xfe, 0xcb, 0x28, 0xb9, 0x50, 0xdd, 0x8b, 0x2f, 0xc7, 0x34, 0xd3, 0x60, 0x5b, 0x1a, 0xc6, 0xed, 0x02, 0x50, 0xf2, 0x4a, 0xc4, 0x75, 0xd1, 0x28, 0x7f, 0x7c, 0xb5, 0xce, 0x61, 0xd6, 0x95, 0xb9, 0xb5, 0x27, 0x0b, 0x52, 0x77, 0x42, 0x4b, 0xf3, 0xb4, 0x3c, 0xef, 0xcb, 0x56, 0xd1, 0x98, 0x22, 0x11, 0xc2, 0xe5, 0xd3, 0xf0, 0x22, 0x87, 0xb9, 0xe8, 0x20, 0xdc, 0xee, 0x9f, 0xc2, 0xad, 0x22, };
 
 int main(void) {
   protect_flash();
@@ -37,7 +62,7 @@ int check_firmware(uintptr_t addr) {
   cf_sha256_digest(&ctx, hash);
 
   for(int i = 0; i < SIGNATURE_COUNT; i++) {
-    if (uECC_verify((fw_public_key + (KEY_LENGTH * i)), hash, CF_SHA256_HASHSZ, UINT8_PTR(addr + SIGNATURE_HEADER_OFFSET + (SIGNATURE_LENGTH * i)), ec_curve) != 1) {
+    if (uECC_verify((fw_public_keys + (KEY_LENGTH * i)), hash, CF_SHA256_HASHSZ, UINT8_PTR(addr + SIGNATURE_HEADER_OFFSET + (SIGNATURE_LENGTH * i)), ec_curve) != 1) {
       return 1;
     }
   }

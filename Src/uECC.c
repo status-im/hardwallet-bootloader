@@ -3,15 +3,7 @@
 #include "uECC.h"
 #include "uECC_types.h"
 
-#ifndef uECC_RNG_MAX_TRIES
-    #define uECC_RNG_MAX_TRIES 64
-#endif
-
-#if uECC_ENABLE_VLI_API
-    #define uECC_VLI_API
-#else
-    #define uECC_VLI_API static
-#endif
+#define uECC_VLI_API static
 
 #define CONCATX(a, ...) a ## __VA_ARGS__
 #define CONCAT(a, ...) CONCATX(a, __VA_ARGS__)
@@ -80,7 +72,6 @@
 #define REPEATM_SOME(N, macro) macro(N) \
     DEFER(CONCAT(REPEATM_NAME_, SOME_OR_0(DEC(N))))()(DEC(N), macro)
 #define REPEATM(N, macro) EVAL(REPEATM_SOME(N, macro))
-
 
 #define uECC_MAX_WORDS 8
 
