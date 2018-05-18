@@ -19,7 +19,7 @@ def main(index):
         print("Firmware must be prepared with fw_prepare.py first!")
         exit(1)
         
-    sk_pem = open("secret_key.pem", "r").read()
+    sk_pem = open("secret_key_%d.pem" % index, "r").read()
     sk = ecdsa.SigningKey.from_pem(sk_pem)
     plain_fw = fw[HEADER_SIZE:]
     fw_sig = sk.sign_deterministic(plain_fw, hashfunc=hashlib.sha256)

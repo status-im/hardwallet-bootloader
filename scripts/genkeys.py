@@ -11,7 +11,7 @@ def main():
     vk = sk.get_verifying_key()
 
     vk_hex = binascii.hexlify(vk.to_string())
-    vk_h = "uint8_t fw_public_key[] = { " + re.sub(r"(..)", "0x\\1, ", vk_hex) + "};"
+    vk_h = re.sub(r"(..)", "0x\\1, ", vk_hex) + "\\"
     open("secret_key.pem","w").write(sk.to_pem())
     open("public_key.h","w").write(vk_h)
 if __name__ == '__main__':

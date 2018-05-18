@@ -96,8 +96,8 @@
 #include "stm32l4xx.h"
 
 void SystemInit(void) {
-  /* Run at 16Mhz */
-  RCC->CR = RCC_CR_MSIRGSEL | RCC_CR_MSIRANGE_8 | RCC_CR_MSION;
+  /* Run at 16mhz */
+  RCC->CR = RCC_CR_MSIRGSEL | RCC_CR_MSIRANGE_9 | RCC_CR_MSION;
 
   /* Reset CFGR */
   RCC->CFGR = 0x00000000U;
@@ -107,6 +107,9 @@ void SystemInit(void) {
 
   /* Disable all interrupts */
   RCC->CIER = 0x00000000U;
+
+  /* Enter run range 2 */
+  PWR->CR1 = PWR_CR1_VOS_1;
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
