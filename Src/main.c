@@ -110,7 +110,7 @@ void _load_firmware(uintptr_t newfw, uint8_t newfw_bank, uint8_t newfw_page, uin
 
   do {
     flash_erase(FLASH_BANK1, FIRMWARE_FIRST_PAGE, FIRMWARE_PAGE_COUNT);
-    flash_copy(UINT32_PTR(newfw),  UINT32_PTR(FIRMWARE_START), UINT32_PTR(newfw)[1]);
+    flash_copy(UINT32_PTR(newfw),  UINT32_PTR(FIRMWARE_START), (UINT32_PTR(newfw)[1]/4));
   } while(check_firmware(FIRMWARE_START) != 0);
 
   if (remove_newfw) {
