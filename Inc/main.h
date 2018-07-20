@@ -53,6 +53,7 @@
 #define KEY_LENGTH SIGNATURE_LENGTH
 #define SIGNATURE_COUNT 4
 
+extern const void* bl_service_table[];
 
 /**
  * Checks if the bootloader and recovery are write protected, if not protect them. Also enables the Read Protection level 2. Since this is irreversible, the code is disabled during development
